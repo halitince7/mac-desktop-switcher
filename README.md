@@ -1,111 +1,126 @@
 # Mac Desktop Switcher
 
-A Swift utility that enables desktop switching on macOS using **Ctrl + Scroll Wheel** - perfect for users with traditional non-Mac mice who want familiar desktop navigation.
+A lightweight, silent background utility that enables desktop switching on macOS using **Ctrl + Scroll Wheel**. Perfect for users with traditional non-Mac mice who want familiar desktop navigation.
+
+This tool runs as a launch agent, meaning it starts automatically at login and runs silently in the background with no Dock or menu bar icon.
 
 ## 🚀 Features
 
-- **Intuitive Controls**: Hold `Ctrl` and scroll to switch between desktops
-- **Universal Compatibility**: Works with any mouse (traditional PC mice, gaming mice, etc.)
-- **Dual Monitoring**: Uses both local and global event monitoring for maximum compatibility
-- **Lightweight**: Runs as a background accessory app (no dock icon)
-- **Smart Cooldown**: Prevents accidental rapid switching with built-in scroll cooldown
-- **Multiple Methods**: Uses both CGEvent and AppleScript for reliable desktop switching
+- **Intuitive Controls**: Hold `Ctrl` and scroll to switch between desktops.
+- **Universal Compatibility**: Works with any mouse (traditional PC mice, gaming mice, etc.).
+- **Silent Background Operation**: Runs as a system service that starts automatically on login.
+- **Efficient**: Consumes minimal system resources.
+- **No GUI**: Completely invisible to the user after installation.
 
 ## 📋 Requirements
 
 - macOS (tested on modern versions)
-- Swift runtime (included with Xcode or Command Line Tools)
-- Accessibility permissions (for global event monitoring)
+- Swift Compiler (included with Xcode or Command Line Tools)
+- Administrator privileges for installation.
 
-## 🛠️ Installation & Usage
+## 🛠️ Installation
 
-### Quick Start
+Follow these steps to compile the utility and install it as a background service that runs on login.
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/yourusername/mac-desktop-switcher.git
-   cd mac-desktop-switcher
-   ```
+1.  **Clone the Repository**:
+    ```bash
+    git clone https://github.com/halitince7/mac-desktop-switcher.git
+    cd mac-desktop-switcher
+    ```
 
-2. **Run the application** (choose one method):
+2.  **Compile the Binary**:
+    This command compiles the Swift script into a native executable file named `desktop-switcher`.
+    ```bash
+    swiftc -o desktop-switcher desktop-switcher.swift
+    ```
 
-   **Method 1: Direct execution**
-   ```bash
-   swift desktop-switcher.swift
-   ```
+3.  **Install the Binary**:
+    Move the compiled executable to `/usr/local/bin`, a standard location for user-installed command-line tools. You will be prompted for your password.
+    ```bash
+    sudo mv desktop-switcher /usr/local/bin/
+    ```
 
-   **Method 2: Compile to binary**
-   ```bash
-   # Compile to binary
-   swiftc -o desktop-switcher-binary desktop-switcher.swift
-   
-   # Run the binary
-   ./desktop-switcher-binary
-   ```
+4.  **Create and Install the Launch Agent**:
+    The service file (`com.user.desktopswitcher.plist`) tells macOS to run the utility automatically when you log in.
 
-3. **Grant permissions** (if prompted):
-   - Go to **System Preferences** → **Security & Privacy** → **Privacy** → **Accessibility**
-   - Add **Terminal** (or **swift**) to the allowed applications
-   - This enables global event monitoring for system-wide functionality
+    First, create the file:
+    ```bash
+    cat > com.user.desktopswitcher.plist << EOL
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+    <plist version="1.0">
+    <dict>
+        <key>Label</key>
+        <string>com.user.desktopswitcher</string>
+        <key>ProgramArguments</key>
+        <array>
+            <string>/usr/local/bin/desktop-switcher</string>
+        </array>
+        <key>RunAtLoad</key>
+        <true/>
+        <key>KeepAlive</key>
+        <true/>
+    </dict>
+    </plist>
+    EOL
+    ```
+    
+    Next, move it to the `LaunchAgents` directory:
+    ```bash
+    mv com.user.desktopswitcher.plist ~/Library/LaunchAgents/
+    ```
 
-### Usage
+5.  **Load and Start the Service**:
+    This command tells macOS to load your new service and start it immediately.
+    ```bash
+    launchctl load ~/Library/LaunchAgents/com.user.desktopswitcher.plist
+    ```
 
-Once running:
-- **Hold `Ctrl`** and **scroll up** to move to the left desktop
-- **Hold `Ctrl`** and **scroll down** to move to the right desktop
-- **Press `Ctrl+C`** to quit the application
+6.  **Grant Accessibility Permissions**:
+    The first time the service runs, it will need accessibility permissions to monitor your mouse and keyboard.
+    - Go to **System Settings** → **Privacy & Security** → **Accessibility**.
+    - You should see `desktop-switcher` in the list. Enable the toggle for it.
+    - If it's not in the list, you may need to add it manually or restart the service (`launchctl unload ...` then `launchctl load ...`).
 
-## 🔧 How It Works
+Installation is now complete! The utility will run silently in the background and start automatically every time you log in.
 
-The application monitors for scroll wheel events while the Control key is held down:
+## 🖱️ Usage
 
-1. **Event Monitoring**: Captures both local and global scroll/keyboard events
-2. **Key State Tracking**: Monitors Control key press/release states
-3. **Desktop Switching**: Sends system events to trigger macOS desktop transitions
-4. **Fallback Methods**: Uses multiple approaches (CGEvent + AppleScript) for reliability
+Once installed and running:
+- **Hold `Ctrl`** and **scroll your mouse wheel** to switch between your desktops.
 
-## 🔒 Permissions
+There is no interface, and nothing to quit. It just works.
 
-The app requests **Accessibility permissions** to enable global event monitoring. This allows it to:
-- Detect scroll events system-wide (not just when the app is focused)
-- Monitor Control key state globally
-- Send desktop switching commands to the system
+## ⚙️ Service Management
 
-**Note**: The app will still work with local monitoring only, but global monitoring provides the best user experience.
+If you need to stop, start, or completely remove the utility, use these commands in the terminal.
 
-## 🎯 Why This Tool?
+#### Stop the Service
+This will stop the process for your current session. It will start again on the next login.
+```bash
+launchctl unload ~/Library/LaunchAgents/com.user.desktopswitcher.plist
+```
 
-Mac's default desktop switching requires:
-- **Magic Mouse**: Two-finger swipe (not available on traditional mice)
-- **Trackpad**: Three/four-finger swipe gestures
-- **Keyboard**: `Ctrl + ←/→` (requires both hands)
+#### Start the Service
+If the service is stopped, you can start it again manually.
+```bash
+launchctl load ~/Library/LaunchAgents/com.user.desktopswitcher.plist
+```
 
-This tool brings **Windows/Linux-style desktop switching** to macOS, making it accessible for users with traditional mice.
+#### Uninstall the Service
+This will permanently remove the utility and its startup service from your system.
+```bash
+# 1. Stop the service if it's running
+launchctl unload ~/Library/LaunchAgents/com.user.desktopswitcher.plist
 
-## 🐛 Troubleshooting
+# 2. Remove the service file
+rm ~/Library/LaunchAgents/com.user.desktopswitcher.plist
 
-### App Not Responding to Scroll
-- Ensure Accessibility permissions are granted
-- Try running from Terminal vs. other applications
-- Check that you're holding `Ctrl` while scrolling
+# 3. Remove the executable (requires password)
+sudo rm /usr/local/bin/desktop-switcher
 
-### Desktop Not Switching
-- Verify you have multiple desktops/spaces configured in Mission Control
-- Check System Preferences → Mission Control → "Automatically rearrange Spaces" settings
-- Try the keyboard shortcut `Ctrl + ←/→` to verify desktop switching works manually
-
-## 🤝 Contributing
-
-Contributions are welcome! Feel free to:
-- Report bugs or issues
-- Suggest new features
-- Submit pull requests
-- Improve documentation
+echo "Desktop Switcher has been uninstalled."
+```
 
 ## 📄 License
-
 This project is open source. Feel free to use, modify, and distribute as needed.
-
----
-
-**Enjoy seamless desktop switching with your favorite mouse! 🖱️✨**
