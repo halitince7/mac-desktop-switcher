@@ -63,6 +63,8 @@ Independent scroll directions for mouse and trackpad. Keeps trackpad natural whi
 
 That's it! Both services will start automatically and run in the background.
 
+**Important Note:** The GUI application is only for managing services (install/start/stop). You don't need to keep the GUI open for the services to work. Once installed, the services run automatically in the background even after restarting your computer.
+
 ---
 
 ## Management Commands
