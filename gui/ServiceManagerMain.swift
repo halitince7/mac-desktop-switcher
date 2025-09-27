@@ -14,6 +14,7 @@ struct ServiceManagerApp: App {
 struct ContentView: View {
     @StateObject private var serviceManager = ServiceManagerViewModel()
     
+    
     var body: some View {
         VStack(spacing: 20) {
             // Header
@@ -34,7 +35,7 @@ struct ContentView: View {
             VStack(spacing: 16) {
                 ServiceCard(
                     title: "Desktop Switcher",
-                    description: "Switch desktops with Ctrl + Scroll Wheel",
+                    description: "Switch desktops with Ctrl + Scroll Wheel (Traditional PC Mouse)",
                     icon: "desktopcomputer",
                     service: serviceManager.desktopSwitcher,
                     onInstall: { serviceManager.installDesktopSwitcher() },
@@ -45,7 +46,7 @@ struct ContentView: View {
                 
                 ServiceCard(
                     title: "ScrollFix",
-                    description: "Independent scroll directions for mouse and trackpad",
+                    description: "Trackpad: Natural scrolling Mouse: Traditional scrolling\n(make sure 'Natural Scrolling' is ON in System Settings)",
                     icon: "scroll",
                     service: serviceManager.scrollFix,
                     onInstall: { serviceManager.installScrollFix() },
@@ -90,7 +91,7 @@ struct ContentView: View {
             }
             .padding(.bottom, 20)
         }
-        .frame(width: 500, height: 600)
+        .frame(width: 450, height: 550)
         .background(Color(.windowBackgroundColor))
         .onAppear {
             serviceManager.refreshStatus()
