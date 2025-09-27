@@ -47,9 +47,18 @@ print_info() {
 
 # Check if running from correct directory
 check_directory() {
-    if [[ ! -f "$DESKTOP_SWITCHER_SOURCE" || ! -f "$SCROLLFIX_SOURCE" ]]; then
-        print_error "Swift source files not found in current directory!"
-        print_info "Please run this script from the mac-desktop-switcher directory."
+    # Check if we're in the root directory or scripts directory
+    if [[ -f "src/$DESKTOP_SWITCHER_SOURCE" && -f "src/$SCROLLFIX_SOURCE" ]]; then
+        # We're in root directory
+        DESKTOP_SWITCHER_SOURCE="src/$DESKTOP_SWITCHER_SOURCE"
+        SCROLLFIX_SOURCE="src/$SCROLLFIX_SOURCE"
+    elif [[ -f "../src/$DESKTOP_SWITCHER_SOURCE" && -f "../src/$SCROLLFIX_SOURCE" ]]; then
+        # We're in scripts directory
+        DESKTOP_SWITCHER_SOURCE="../src/$DESKTOP_SWITCHER_SOURCE"
+        SCROLLFIX_SOURCE="../src/$SCROLLFIX_SOURCE"
+    else
+        print_error "Swift source files not found!"
+        print_info "Please run this script from the mac-desktop-switcher directory or scripts directory."
         exit 1
     fi
 }

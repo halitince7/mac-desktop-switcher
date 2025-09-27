@@ -61,5 +61,11 @@ fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
 
-
+# Build artifacts
+build/
+*.app
 *binary
+
+# Compiled binaries
+desktop-switcher
+scrollfix
